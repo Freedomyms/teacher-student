@@ -35,7 +35,7 @@ public class LogoShowActivity extends BaseActivity {
                 //每次App启动 重置签到表
                 userPreference.edit().putString("allStud", "").apply();
                 Intent intent2 = new Intent();
-                intent2.setClass(LogoShowActivity.this, MainActivity.class);
+                intent2.setClass(LogoShowActivity.this, LoginActivity.class);
                 startActivity(intent2);
                 overridePendingTransition(R.anim.activity_enter, R.anim.activity_exit);
                 finish();

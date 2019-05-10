@@ -20,4 +20,5 @@
     <color name="colorListBg1">#0080A3</color>
     <color name="colorListBg2">#6AAFF4</color>
     <color name="colorListBg3">#36BF86</color>
+    <color name="white">#FFFFFF</color>
 </resources>

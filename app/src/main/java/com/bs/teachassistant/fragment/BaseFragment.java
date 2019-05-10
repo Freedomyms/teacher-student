@@ -38,6 +38,7 @@ public abstract class BaseFragment extends Fragment {
     public CourseDao courseDao;
     public ScoreDao scoreDao;
 
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         appConfig = AppConfig.getAppConfig();

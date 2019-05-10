@@ -1,15 +1,18 @@
 package com.bs.teachassistant.common;
 
 import android.app.Application;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.bs.teachassistant.database.DaoMaster;
 import com.bs.teachassistant.database.DaoSession;
+import com.bs.teachassistant.utils.SharedPreferencesUtils;
 
 import org.xutils.x;
 
 public class AppConfig extends Application {
     private static AppConfig appConfig;
+    private static Context context;
     private DaoMaster.DevOpenHelper mHelper;
     private SQLiteDatabase db;
     private DaoMaster mDaoMaster;
@@ -19,6 +22,8 @@ public class AppConfig extends Application {
         super.onCreate();
         x.Ext.init(this);
         appConfig = this;
+        context = getApplicationContext();
+        SharedPreferencesUtils.init(context);
         setDatabase();
     }
 
@@ -27,6 +32,11 @@ public class AppConfig extends Application {
             appConfig = new AppConfig();
         return appConfig;
     }
+
+    public static Context getContextObject() {
+        return context;
+    }
+
     /**
      * 设置greenDao
      */

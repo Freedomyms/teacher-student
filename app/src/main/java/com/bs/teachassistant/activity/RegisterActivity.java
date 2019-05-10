@@ -8,15 +8,19 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bs.teachassistant.R;
 import com.bs.teachassistant.entity.User;
 import com.bs.teachassistant.utils.GsonUtils;
+import com.bs.teachassistant.utils.ToastUtils;
 
 import org.xutils.view.annotation.ContentView;
 import org.xutils.view.annotation.Event;
 import org.xutils.view.annotation.ViewInject;
+
+import java.util.List;
 
 /**
  * Created by limh on 2017/4/25.
@@ -25,6 +29,8 @@ import org.xutils.view.annotation.ViewInject;
 @ContentView(R.layout.activity_regiter)
 public class RegisterActivity extends BaseActivity {
 
+    @ViewInject(R.id.tv_register_title)
+    TextView mTvRegisterTitle;
     @ViewInject(R.id.edit_regiter_name)
     EditText editName;
     @ViewInject(R.id.edit_regiter_pass1)
@@ -36,10 +42,11 @@ public class RegisterActivity extends BaseActivity {
     @ViewInject(R.id.radio_sex)
     RadioGroup radioSex;
 
+
     private ProgressDialog dialog;
-
     private String sex = "boy";
-
+    private boolean isTeacher = true;
+    private int permission=0;
     @Override
     public void initViews() {
         radioSex.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -55,11 +62,20 @@ public class RegisterActivity extends BaseActivity {
                 }
             }
         });
+
+
     }
 
     @Override
     public void initDatas() {
-
+        isTeacher= getIntent().getBooleanExtra("is_teacher",true);
+        if(isTeacher){
+            permission=0;
+            mTvRegisterTitle.setText("教师注册");
+        }else {
+            permission=1;
+            mTvRegisterTitle.setText("学生注册");
+        }
     }
 
     @Event(value = {R.id.image_regiter_close, R.id.btn_regiter}, type = View.OnClickListener.class)
@@ -91,9 +107,17 @@ public class RegisterActivity extends BaseActivity {
             Toast.makeText(this, "两次密码输入不一致", Toast.LENGTH_SHORT).show();
             return;
         }
+        List<User>userList =userDao.loadAll();
+        for(User user:userList){
+            if(editName.getText().toString().equals(user.getUserName())){
+                ToastUtils.showShort("用户名重复,请修改用户名");
+                return;
+            }
+        }
 
-        User user = new User(editName.getText().toString(), editPass1.getText().toString(), editPhone.getText().toString(), sex);
+        User user = new User(editName.getText().toString(), editPass1.getText().toString(), editPhone.getText().toString(), sex,permission);
         userPreference.edit().putString("useInfo", GsonUtils.GsonString(user)).apply();
+        userDao.insert(user);
         if (null == dialog)
             dialog = new ProgressDialog(RegisterActivity.this);
         dialog.setMessage("正在注册，请稍后...");

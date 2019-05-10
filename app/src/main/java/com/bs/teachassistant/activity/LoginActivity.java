@@ -9,15 +9,20 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bs.teachassistant.R;
 import com.bs.teachassistant.entity.User;
 import com.bs.teachassistant.utils.GsonUtils;
+import com.bs.teachassistant.utils.SharedPreferencesUtils;
+import com.bs.teachassistant.utils.ToastUtils;
 
 import org.xutils.view.annotation.ContentView;
 import org.xutils.view.annotation.Event;
 import org.xutils.view.annotation.ViewInject;
+
+import java.util.List;
 
 /**
  * Created by limh on 2017/4/25.
@@ -32,10 +37,29 @@ public class LoginActivity extends BaseActivity {
 
     private User user = null;
     private ProgressDialog dialog;
+    private TextView mTvLoginTitle;
+    private TextView mTvLoginSwitch;
+    private boolean isTeacher = true;
 
     @Override
     public void initViews() {
+        mTvLoginTitle = (TextView) findViewById(R.id.tv_login_title);
+        mTvLoginSwitch = (TextView) findViewById(R.id.tv_login_switch);
 
+        mTvLoginSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (isTeacher) {
+                    mTvLoginTitle.setText("学生登录");
+                    mTvLoginSwitch.setText("教师");
+                    isTeacher = false;
+                } else {
+                    mTvLoginTitle.setText("教师登录");
+                    mTvLoginSwitch.setText("学生");
+                    isTeacher = true;
+                }
+            }
+        });
     }
 
     @Override
@@ -63,6 +87,7 @@ public class LoginActivity extends BaseActivity {
             case R.id.txt_register:
                 Intent intent = new Intent();
                 intent.setClass(LoginActivity.this, RegisterActivity.class);
+                intent.putExtra("is_teacher",isTeacher);
                 startActivity(intent);
                 break;
 
@@ -82,24 +107,64 @@ public class LoginActivity extends BaseActivity {
             Toast.makeText(this, "手机号不能为空", Toast.LENGTH_SHORT).show();
             return;
         }
+        List<User> userList =userDao.loadAll();
+        for(User user:userList){
+           Log.e("user",user.toString());
+        }
         if ((editName.getText().toString().equals(user.getUserName()) || editName.getText().toString().equals(user.getPhone())) &&
                 editPass.getText().toString().equals(user.getPassword())) {
-            if (null == dialog)
-                dialog = new ProgressDialog(LoginActivity.this);
-            dialog.setMessage("正在登陆，请稍后...");
-            dialog.setCanceledOnTouchOutside(false);
-            dialog.show();
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Thread.sleep(2000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
+            if(isTeacher){
+                if(user.getPermission()==0){
+                    for(User user:userList){
+                        if(editName.getText().toString().equals(user.getUserName())){
+                            SharedPreferencesUtils.putInt("permission");
+                            if (null == dialog)
+                                dialog = new ProgressDialog(LoginActivity.this);
+                            dialog.setMessage("正在登陆，请稍后...");
+                            dialog.setCanceledOnTouchOutside(false);
+                            dialog.show();
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        Thread.sleep(2000);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                    handler.sendEmptyMessage(0x123);
+                                }
+                            }).start();
+                            return;
+                        }
                     }
-                    handler.sendEmptyMessage(0x123);
+
                 }
-            }).start();
+            }else {
+                if(user.getPermission()==1){
+                    for(User user:userList){
+                        if(editName.getText().toString().equals(user.getUserName())){
+                            if (null == dialog)
+                                dialog = new ProgressDialog(LoginActivity.this);
+                            dialog.setMessage("正在登陆，请稍后...");
+                            dialog.setCanceledOnTouchOutside(false);
+                            dialog.show();
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        Thread.sleep(2000);
+                                    } catch (InterruptedException e) {
+                                        e.printStackTrace();
+                                    }
+                                    handler.sendEmptyMessage(0x123);
+                                }
+                            }).start();
+                            return;
+                        }
+                    }
+                }
+            }
+            Toast.makeText(this, "用户名或密码错误", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "用户名或密码错误", Toast.LENGTH_SHORT).show();
         }
