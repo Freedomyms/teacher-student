@@ -1,3 +1,11 @@
 <resources>
-    <string name="app_name">大同大学教科院</string>
+    <string name="app_name">Teacher</string>
+
+
+    <string name="str_warning">警告</string>
+    <string name="str_ok">确定</string>
+    <string name="msg_permission_warning">缺少应用的必要运行权限，应用无法使用</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
